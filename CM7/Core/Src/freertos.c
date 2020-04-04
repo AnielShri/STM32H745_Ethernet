@@ -106,11 +106,11 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 1024);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of BlinkTask */
-  osThreadDef(BlinkTask, StartBlinkTask, osPriorityLow, 0, 256);
+  osThreadDef(BlinkTask, StartBlinkTask, osPriorityLow, 0, 1024);
   BlinkTaskHandle = osThreadCreate(osThread(BlinkTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
