@@ -20,7 +20,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "eth.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
