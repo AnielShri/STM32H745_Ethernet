@@ -40,5 +40,10 @@
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers</locationURI>
 		</link>
+		<link>
+			<name>Middlewares/Third_Party/FreeRTOS</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Middlewares/Third_Party/FreeRTOS</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>
