@@ -47,6 +47,10 @@ MEMORY
 FLASH (rx)		: ORIGIN = 0x08000000, LENGTH = 1024K
 DTCMRAM (xrw)	: ORIGIN = 0x20000000, LENGTH = 128K
 RAM_D1 (xrw)	: ORIGIN = 0x24000000, LENGTH = 512K
+RAM1_D2 (xrw)	: ORIGIN = 0x30000000, LENGTH = 128K
+RAM2_D2 (xrw)	: ORIGIN = 0x30020000, LENGTH = 128K
+RAM3_D2 (xrw)	: ORIGIN = 0x30040000, LENGTH = 32K
+RAM4_D3 (xrw)	: ORIGIN = 0x38000000, LENGTH = 64K
 ITCMRAM (xrw)	: ORIGIN = 0x00000000, LENGTH = 64K
 }
 
@@ -158,6 +162,17 @@ SECTIONS
     . = ALIGN(8);
   } >RAM_D1
 
+  
+  .lwip_sec (NOLOAD) : {
+    . = ABSOLUTE(0x30040000);
+    *(.RxDecripSection) 
+    
+    . = ABSOLUTE(0x30040060);
+    *(.TxDecripSection)
+    
+    . = ABSOLUTE(0x30040200);
+    *(.RxArraySection) 
+  } >RAM3_D2 AT> FLASH
   
 
   /* Remove information from the standard libraries */
