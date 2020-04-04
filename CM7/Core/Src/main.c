@@ -21,7 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "eth.h"
+#include "lwip.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -132,7 +132,6 @@ Error_Handler();
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ETH_Init();
   MX_USART3_UART_Init();
   MX_TIM13_Init();
   /* USER CODE BEGIN 2 */
