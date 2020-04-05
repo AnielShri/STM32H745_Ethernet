@@ -138,6 +138,7 @@ Error_Handler();
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
   HAL_TIM_Base_Start_IT(&htim13);
 
+  // seems to work without this addition too
   SCB_CleanInvalidateDCache();
 
   /* USER CODE END 2 */

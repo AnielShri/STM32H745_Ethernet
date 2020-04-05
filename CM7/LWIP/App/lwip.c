@@ -94,7 +94,11 @@ void MX_LWIP_Init(void)
   dhcp_start(&gnetif);
 
 /* USER CODE BEGIN 3 */
-
+  if (netif_is_link_up(&gnetif))
+  {
+    /* When the netif is fully configured turn on LD3 */
+	 HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+  }
 /* USER CODE END 3 */
 }
 
