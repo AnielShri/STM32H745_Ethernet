@@ -45,5 +45,10 @@
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Middlewares/Third_Party/FreeRTOS</locationURI>
 		</link>
+		<link>
+			<name>Middlewares/Third_Party/LwIP</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Middlewares/Third_Party/LwIP</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

@@ -20,7 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "eth.h"
+#include "lwip.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -130,13 +130,15 @@ Error_Handler();
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ETH_Init();
   MX_USART3_UART_Init();
   MX_TIM13_Init();
+  MX_LWIP_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
   HAL_TIM_Base_Start_IT(&htim13);
+
+  SCB_CleanInvalidateDCache();
 
   /* USER CODE END 2 */
 
@@ -147,6 +149,7 @@ Error_Handler();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  MX_LWIP_Process ();
   }
   /* USER CODE END 3 */
 }

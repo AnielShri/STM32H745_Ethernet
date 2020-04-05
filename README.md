@@ -10,7 +10,7 @@ Using the following references:
 ---
 
 ## First issue: SysTick not counting
-For some reason the SysTick counter is not automatically added. This causes either infinit wait loops when calling HAL_Delay (or related function), or causes startup error (see image below)
+For some reason the SysTick counter is not automatically added. This causes either infinit wait loops when calling HAL_Delay (and related function), or causes startup error (see image below)
 
 ![asm loop](Documentation/asm_inf_loop.png)
 
