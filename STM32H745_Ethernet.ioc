@@ -103,6 +103,7 @@ MxCube.Version=5.6.0
 MxDb.Version=DB.5.0.60
 NVIC1.BusFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 NVIC1.DebugMonitor_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
+NVIC1.ETH_IRQn=true\:5\:0\:false\:false\:true\:true\:true\:true
 NVIC1.ForceEnableDMAVector=true
 NVIC1.HardFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 NVIC1.MemoryManagement_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
