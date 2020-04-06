@@ -33,17 +33,12 @@
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
 static void ethernet_link_status_updated(struct netif *netif);
-static void Ethernet_Link_Periodic_Handle(struct netif *netif);
 /* ETH Variables initialization ----------------------------------------------*/
 void Error_Handler(void);
 
-/* DHCP Variables initialization ---------------------------------------------*/
-uint32_t DHCPfineTimer = 0;
-uint32_t DHCPcoarseTimer = 0;
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-uint32_t EthernetLinkTimer;
 
 /* Variables Initialization */
 struct netif gnetif;
@@ -60,16 +55,16 @@ ip4_addr_t gw;
   */
 void MX_LWIP_Init(void)
 {
-  /* Initilialize the LwIP stack without RTOS */
-  lwip_init();
+  /* Initilialize the LwIP stack with RTOS */
+  tcpip_init( NULL, NULL );
 
   /* IP addresses initialization with DHCP (IPv4) */
   ipaddr.addr = 0;
   netmask.addr = 0;
   gw.addr = 0;
 
-  /* add the network interface (IPv4/IPv6) without RTOS */
-  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+  /* add the network interface (IPv4/IPv6) with RTOS */
+  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 
   /* Registers the default network interface */
   netif_set_default(&gnetif);
@@ -89,6 +84,10 @@ void MX_LWIP_Init(void)
   netif_set_link_callback(&gnetif, ethernet_link_status_updated);
 
   /* Create the Ethernet link handler thread */
+/* USER CODE BEGIN H7_OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
+  osThreadDef(EthLink, ethernet_link_thread, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE *2);
+  osThreadCreate (osThread(EthLink), &gnetif);
+/* USER CODE END H7_OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
 
   /* Start DHCP negotiation for a network interface (IPv4) */
   dhcp_start(&gnetif);
@@ -108,54 +107,6 @@ void MX_LWIP_Init(void)
 /* USER CODE BEGIN 4 */
 /* USER CODE END 4 */
 #endif
-
-/**
-  * @brief  Ethernet Link periodic check
-  * @param  netif 
-  * @retval None
-  */
-static void Ethernet_Link_Periodic_Handle(struct netif *netif)
-{
-/* USER CODE BEGIN 4_3 */
-/* USER CODE END 4_3 */
-
-  /* Ethernet Link every 100ms */
-  if (HAL_GetTick() - EthernetLinkTimer >= 100)
-  {
-    EthernetLinkTimer = HAL_GetTick();
-    ethernet_link_check_state(netif);
-  }
-/* USER CODE BEGIN 4_4 */
-/* USER CODE END 4_4 */
-}
-
-/**
- * ----------------------------------------------------------------------
- * Function given to help user to continue LwIP Initialization
- * Up to user to complete or change this function ...
- * Up to user to call this function in main.c in while (1) of main(void) 
- *-----------------------------------------------------------------------
- * Read a received packet from the Ethernet buffers 
- * Send it to the lwIP stack for handling
- * Handle timeouts if LWIP_TIMERS is set and without RTOS
- * Handle the llink status if LWIP_NETIF_LINK_CALLBACK is set and without RTOS 
- */
-void MX_LWIP_Process(void)
-{
-/* USER CODE BEGIN 4_1 */
-/* USER CODE END 4_1 */
-  ethernetif_input(&gnetif);
-  
-/* USER CODE BEGIN 4_2 */
-/* USER CODE END 4_2 */  
-  /* Handle timeouts */
-  sys_check_timeouts();
-
-  Ethernet_Link_Periodic_Handle(&gnetif);
-
-/* USER CODE BEGIN 4_3 */
-/* USER CODE END 4_3 */
-}
 
 /**
   * @brief  Notify the User about the network interface config status 
