@@ -7,6 +7,10 @@ Using the following references:
 * [How to create project for STM32H7 with Ethernet and LwIP stack working](https://community.st.com/s/article/How-to-create-project-for-STM32H7-with-Ethernet-and-LwIP-stack-working)
 * [HowardWhile / 2020_note](https://translate.google.com/translate?sl=zh-CN&tl=en&u=https%3A%2F%2Fgithub.com%2FHowardWhile%2F2020_note%2Fwiki%2FSTM32)
 
+Instructions on how to get started:
+* [LWIP without RTOS](l#wip-without-freertos)
+* [LWIP with RTOS](#lwip-with-rtos)
+
 ---
 
 ## Issue: SysTick not counting
