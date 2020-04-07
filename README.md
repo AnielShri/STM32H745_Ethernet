@@ -14,7 +14,7 @@ Instructions on how to get started:
 Current status: 
 * RTOS works (blinky)
 * LWIP works (nucleo board gets IP from DHCP on router)
-* HTTP test server works (navigate to http://<ip>/index.html for demo)
+* HTTP test server works (navigate to http://\<ip\>/index.html for demo)
 
 ---
 
