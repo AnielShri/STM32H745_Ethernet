@@ -11,6 +11,11 @@ Instructions on how to get started:
 * [LWIP without RTOS](l#wip-without-freertos)
 * [LWIP with RTOS](#lwip-with-rtos)
 
+Current status: 
+* RTOS works (blinky)
+* LWIP works (nucleo board gets IP from DHCP on router)
+* HTTP test server works (navigate to http://<ip>/index.html for demo)
+
 ---
 
 ## Issue: SysTick not counting
