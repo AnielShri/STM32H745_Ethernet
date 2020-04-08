@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -137,6 +137,9 @@ Error_Handler();
   /* USER CODE BEGIN 2 */
 
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+
+  uint8_t msg[] = "\r\n----\r\nBuild: "  __DATE__  " @ "   __TIME__   "\r\n----\r\n";
+  HAL_UART_Transmit(&huart3, msg, strlen((char *)msg), HAL_MAX_DELAY);
 //  HAL_TIM_Base_Start_IT(&htim13);
 
   // seems to work without this addition too

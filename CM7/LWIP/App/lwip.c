@@ -29,6 +29,7 @@
 /* USER CODE BEGIN 0 */
 
 #include "main.h"
+#include "usart.h"
 
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
@@ -47,6 +48,25 @@ ip4_addr_t netmask;
 ip4_addr_t gw;
 
 /* USER CODE BEGIN 2 */
+
+void ethernet_status_callback(struct netif *netif)
+{
+	uint8_t msg[48];
+	size_t msg_len;
+
+	if (netif_is_up(netif))
+	{
+		uint8_t msg_ip[20];
+		ipaddr_ntoa_r(&netif->ip_addr, (char* )msg_ip, 20);
+		msg_len = sprintf((char*) msg, "STATUS connected @ %s\r\n", (char*) msg_ip);
+	}
+	else
+	{
+		 msg_len = sprintf((char *)msg, "STATUS down @ %lu\r\n", HAL_GetTick()/1000);
+	}
+
+	HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
+}
 
 /* USER CODE END 2 */
 
@@ -93,11 +113,13 @@ void MX_LWIP_Init(void)
   dhcp_start(&gnetif);
 
 /* USER CODE BEGIN 3 */
-  if (netif_is_link_up(&gnetif))
-  {
-    /* When the netif is fully configured turn on LD3 */
-	 HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
-  }
+
+  // add status callback for future status updates
+  netif_set_status_callback(&gnetif, ethernet_status_callback);
+
+  // did the network change?
+  ethernet_link_status_updated(&gnetif);
+
 /* USER CODE END 3 */
 }
 
@@ -119,11 +141,20 @@ static void ethernet_link_status_updated(struct netif *netif)
   {
 /* USER CODE BEGIN 5 */
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+
+	  uint8_t msg[48], msg_ip[18];
+	  ipaddr_ntoa_r(&netif->ip_addr, (char *)msg_ip, 20);
+	  size_t msg_len = sprintf((char *)msg, "LINK connected @ %s\r\n", (char *)msg_ip);
+	  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
+
 /* USER CODE END 5 */
   }
   else /* netif is down */
   {  
 /* USER CODE BEGIN 6 */
+	  uint8_t msg[32];
+	  size_t msg_len = sprintf((char *)msg, "LINK down @ %lu\r\n", HAL_GetTick()/1000);
+	  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 /* USER CODE END 6 */
   } 

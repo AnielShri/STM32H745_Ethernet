@@ -23,7 +23,6 @@ static const char http_404_hdr[] = "HTTP/1.1 404 ERROR\r\nContent-type: text/htm
 static const char http_404_html[] = "<html><head><title>Error</title></head><body><h1>LWIP Error</h1><p>These are not the droids you're looking for</body></html>";
 
 
-
 /** Serve one HTTP connection accepted in the http thread */
 static void http_server_netconn_serve(struct netconn *conn)
 {
