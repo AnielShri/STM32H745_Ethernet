@@ -30,6 +30,7 @@
 
 #include "main.h"
 #include "usart.h"
+#include "lwip/autoip.h"
 
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
@@ -66,6 +67,25 @@ void ethernet_status_callback(struct netif *netif)
 	}
 
 	HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
+}
+
+uint8_t ethernet_ip_check(struct netif *netif)
+{
+	  osDelay(2000);
+	  uint8_t msg[48], msg_ip[18];
+	  if(netif->ip_addr.addr != 0)
+	  {
+		  ipaddr_ntoa_r(&netif->ip_addr, (char *)msg_ip, 20);
+		  size_t msg_len = sprintf((char *)msg, "LINK after 2s @ %s\r\n", (char *)msg_ip);
+		  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
+		  return 1;
+	  }
+	  else
+	  {
+		  size_t msg_len = sprintf((char *)msg, "No IP after 2 seconds\r\n");
+		  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
+		  return 0;
+	  }
 }
 
 /* USER CODE END 2 */
@@ -120,6 +140,11 @@ void MX_LWIP_Init(void)
   // did the network change?
   ethernet_link_status_updated(&gnetif);
 
+  // add name; just because
+  char host_name[] = "STM32_Infinity";
+  netif_set_hostname(&gnetif, host_name);
+
+
 /* USER CODE END 3 */
 }
 
@@ -146,6 +171,23 @@ static void ethernet_link_status_updated(struct netif *netif)
 	  ipaddr_ntoa_r(&netif->ip_addr, (char *)msg_ip, 20);
 	  size_t msg_len = sprintf((char *)msg, "LINK connected @ %s\r\n", (char *)msg_ip);
 	  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
+
+	  if(ethernet_ip_check(netif) == 0)
+	  {
+		  // no IP assigned
+		  // => DHCP failled?
+		  // 	=> Let's try again
+
+		  dhcp_release(netif);
+		  osDelay(1000);
+		  dhcp_stop(netif);
+		  osDelay(1000);
+		  dhcp_start(netif);
+
+		  // did we get an IP?
+		  ethernet_ip_check(netif);
+	  }
+
 
 /* USER CODE END 5 */
   }
