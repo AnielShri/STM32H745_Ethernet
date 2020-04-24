@@ -27,6 +27,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */     
 #include "http_server.h"
+#include "usart.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -150,6 +152,20 @@ void StartDefaultTask(void const * argument)
 void StartBlinkTask(void const * argument)
 {
   /* USER CODE BEGIN StartBlinkTask */
+
+	uint32_t id0 = HAL_GetUIDw0();
+
+	uint8_t msg[128];
+	uint8_t mac[6];
+
+	mac[0] = (id0 >> 0) & 0x000000FF;
+	mac[1] = (id0 >> 8) & 0x000000FF;
+	mac[2] = (id0 >> 16) & 0x000000FF;
+	mac[3] = (id0 >> 24) & 0x000000FF;
+
+	size_t len = sprintf((char*)msg, "0x%x \r\n %02X-%02X-%02X-%02X \r\n\r\n", id0, mac[3], mac[2], mac[1], mac[0]);
+	HAL_UART_Transmit(&huart3, msg, len, HAL_MAX_DELAY);
+
   /* Infinite loop */
   for(;;)
   {

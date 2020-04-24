@@ -287,6 +287,22 @@ static void low_level_init(struct netif *netif)
 
   /* USER CODE BEGIN MACADDRESS */
     
+	uint32_t id0 = HAL_GetUIDw0();
+
+	uint8_t mac[6];
+
+	// first 3 bytes are ST specific max prefixes
+	mac[0] = 0x00;
+	mac[1] = 0x80;
+	mac[2] = 0xE1;
+
+	// last 3 bytes are used to set unique mac based on UID
+	mac[3] = (id0 >> 16) & 0x000000FF;
+	mac[4] = (id0 >> 8) & 0x000000FF;
+	mac[5] = (id0 >> 0) & 0x000000FF;
+
+	heth.Init.MACAddr = &mac[0];
+
   /* USER CODE END MACADDRESS */
 
   hal_eth_init_status = HAL_ETH_Init(&heth);

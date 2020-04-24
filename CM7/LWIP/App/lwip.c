@@ -72,11 +72,15 @@ void ethernet_status_callback(struct netif *netif)
 uint8_t ethernet_ip_check(struct netif *netif)
 {
 	  osDelay(2000);
-	  uint8_t msg[48], msg_ip[18];
+	  uint8_t msg[127];
+
 	  if(netif->ip_addr.addr != 0)
 	  {
-		  ipaddr_ntoa_r(&netif->ip_addr, (char *)msg_ip, 20);
-		  size_t msg_len = sprintf((char *)msg, "LINK after 2s @ %s\r\n", (char *)msg_ip);
+		  char msg_ip[18], msg_mask[18], msg_gate[18];
+		  ipaddr_ntoa_r(&netif->ip_addr, msg_ip, 20);
+		  ipaddr_ntoa_r(&netif->netmask, msg_mask, 20);
+		  ipaddr_ntoa_r(&netif->gw, msg_gate, 20);
+		  size_t msg_len = sprintf((char *)msg, "LINK after 2s @ %s; %s; %s\r\n",  msg_ip, msg_mask, msg_gate);
 		  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 		  return 1;
 	  }
@@ -141,8 +145,8 @@ void MX_LWIP_Init(void)
   ethernet_link_status_updated(&gnetif);
 
   // add name; just because
-  char host_name[] = "STM32_Infinity";
-  netif_set_hostname(&gnetif, host_name);
+//  char host_name[] = "STM32_Infinity";
+//  netif_set_hostname(&gnetif, host_name);
 
 
 /* USER CODE END 3 */
@@ -167,6 +171,8 @@ static void ethernet_link_status_updated(struct netif *netif)
 /* USER CODE BEGIN 5 */
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
 
+	  ethernet_ip_check(netif);
+
 	  uint8_t msg[48], msg_ip[18];
 	  ipaddr_ntoa_r(&netif->ip_addr, (char *)msg_ip, 20);
 	  size_t msg_len = sprintf((char *)msg, "LINK connected @ %s\r\n", (char *)msg_ip);
@@ -177,6 +183,8 @@ static void ethernet_link_status_updated(struct netif *netif)
 		  // no IP assigned
 		  // => DHCP failled?
 		  // 	=> Let's try again
+		  msg_len = sprintf((char *)msg, "Initial DHCP failed, trying again\r\n");
+		  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 
 		  dhcp_release(netif);
 		  osDelay(1000);
@@ -185,7 +193,35 @@ static void ethernet_link_status_updated(struct netif *netif)
 		  dhcp_start(netif);
 
 		  // did we get an IP?
-		  ethernet_ip_check(netif);
+		  if(ethernet_ip_check(netif) == 0)
+		  {
+			  // still no IP?
+			  // => use static fall back
+			  msg_len = sprintf((char *)msg, "Second DHCP failed, using static fallback\r\n");
+			  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
+
+			  dhcp_release(netif);
+			  osDelay(1000);
+			  dhcp_stop(netif);
+			  osDelay(1000);
+			  netif_set_down(netif);
+			  osDelay(1000);
+
+			  // config IP address
+			  IP4_ADDR(&ipaddr, 192, 168, 20, 205);
+			  IP4_ADDR(&netmask, 255, 255, 255, 0);
+			  IP4_ADDR(&gw, 192, 168, 20, 1);
+
+			  // set fallback value
+			  netif_set_addr(netif, &ipaddr, &netmask, &gw);
+
+			  // Bring the interface up again
+			  netif_set_up(netif);
+
+			  // did it work?
+			  ethernet_ip_check(netif);
+		  }
+
 	  }
 
 
@@ -198,6 +234,11 @@ static void ethernet_link_status_updated(struct netif *netif)
 	  size_t msg_len = sprintf((char *)msg, "LINK down @ %lu\r\n", HAL_GetTick()/1000);
 	  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
+
+	  // restart dns?
+	  IP4_ADDR(&ipaddr, 0, 0, 0, 0);
+	  dhcp_start(netif);
+
 /* USER CODE END 6 */
   } 
 }
