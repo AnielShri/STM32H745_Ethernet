@@ -3,7 +3,7 @@
 STM32 MCUs have a 96-bit unique id (literally called UID). This can be used to generate a unique ethernet MAC. Keep in mind that, since only 3-Bytes (or 25%) of the UID is used. This increases the likelyhood of multiple MCUs having the same MAC address. For most practical applications this should not be an issue.
 
 ### Instructions:
-Edid `low_level_init` in `ethernetif.c` and add the following code before `HAL_ETH_Init`.
+Edid `low_level_init` in [`ethernetif.c`](..\CM7\LWIP\Target\ethernetif.c) and add the following code before `HAL_ETH_Init`.
 
 ```c
 /* USER CODE BEGIN MACADDRESS */
