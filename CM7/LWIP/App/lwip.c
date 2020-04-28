@@ -28,9 +28,11 @@
 
 /* USER CODE BEGIN 0 */
 
+#include <stdio.h>
 #include "main.h"
 #include "usart.h"
 #include "lwip/autoip.h"
+#include "lwip/netifapi.h"
 
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
@@ -171,7 +173,7 @@ static void ethernet_link_status_updated(struct netif *netif)
 /* USER CODE BEGIN 5 */
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
 
-	  ethernet_ip_check(netif);
+//	  ethernet_ip_check(netif);
 
 	  uint8_t msg[48], msg_ip[18];
 	  ipaddr_ntoa_r(&netif->ip_addr, (char *)msg_ip, 20);
@@ -186,11 +188,11 @@ static void ethernet_link_status_updated(struct netif *netif)
 		  msg_len = sprintf((char *)msg, "Initial DHCP failed, trying again\r\n");
 		  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 
-		  dhcp_release(netif);
+		  netifapi_dhcp_release(netif);
 		  osDelay(1000);
-		  dhcp_stop(netif);
+		  netifapi_dhcp_stop(netif);
 		  osDelay(1000);
-		  dhcp_start(netif);
+		  netifapi_dhcp_start(netif);
 
 		  // did we get an IP?
 		  if(ethernet_ip_check(netif) == 0)
@@ -200,10 +202,14 @@ static void ethernet_link_status_updated(struct netif *netif)
 			  msg_len = sprintf((char *)msg, "Second DHCP failed, using static fallback\r\n");
 			  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 
-			  dhcp_release(netif);
+//			  dhcp_release(netif);
+			  netifapi_dhcp_release(netif);
 			  osDelay(1000);
-			  dhcp_stop(netif);
-			  osDelay(2000);
+//			  dhcp_stop(netif);
+			  netifapi_dhcp_stop(netif);
+			  netif_set_down(netif);
+			  osDelay(3000);
+
 
 			  // set static IP address
 			  IP4_ADDR(&ipaddr, 192, 168, 1, 3);
@@ -212,6 +218,7 @@ static void ethernet_link_status_updated(struct netif *netif)
 
 			  // set fallback value
 			  netif_set_addr(&gnetif, &ipaddr, &netmask, &gw);
+			  netif_set_up(netif);
 
 			  // did it work?
 			  ethernet_ip_check(netif);
@@ -228,10 +235,6 @@ static void ethernet_link_status_updated(struct netif *netif)
 	  size_t msg_len = sprintf((char *)msg, "LINK down @ %lu\r\n", HAL_GetTick()/1000);
 	  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
-
-	  // restart dns?
-	  IP4_ADDR(&ipaddr, 0, 0, 0, 0);
-	  dhcp_start(netif);
 
 /* USER CODE END 6 */
   } 
