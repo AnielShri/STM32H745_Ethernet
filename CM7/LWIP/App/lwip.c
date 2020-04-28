@@ -237,8 +237,10 @@ static void ethernet_link_status_updated(struct netif *netif)
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
 
 	  // release IP
-//	  netifapi_dhcp_release(netif);
-//	  netifapi_dhcp_stop(netif);
+	  ipaddr.addr = 0;
+	  netmask.addr = 0;
+	  gw.addr = 0;
+	  netifapi_netif_set_addr(&gnetif, &ipaddr, &netmask, &gw);
 
 /* USER CODE END 6 */
   } 
