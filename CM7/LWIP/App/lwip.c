@@ -31,7 +31,6 @@
 #include <stdio.h>
 #include "main.h"
 #include "usart.h"
-#include "lwip/autoip.h"
 #include "lwip/netifapi.h"
 
 /* USER CODE END 0 */
@@ -188,11 +187,12 @@ static void ethernet_link_status_updated(struct netif *netif)
 		  msg_len = sprintf((char *)msg, "Initial DHCP failed, trying again\r\n");
 		  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 
+		  // TODO: change to netifapi_dhcp_release_and_stop in v2.1+
 		  netifapi_dhcp_release(netif);
-		  osDelay(1000);
 		  netifapi_dhcp_stop(netif);
-		  osDelay(1000);
+		  osDelay(2000);
 		  netifapi_dhcp_start(netif);
+		  osDelay(2000);
 
 		  // did we get an IP?
 		  if(ethernet_ip_check(netif) == 0)
@@ -203,11 +203,11 @@ static void ethernet_link_status_updated(struct netif *netif)
 			  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 
 //			  dhcp_release(netif);
+			  // TODO: change to netifapi_dhcp_release_and_stop in v2.1+
 			  netifapi_dhcp_release(netif);
-			  osDelay(1000);
-//			  dhcp_stop(netif);
 			  netifapi_dhcp_stop(netif);
-			  netif_set_down(netif);
+			  osDelay(1000);
+			  netifapi_netif_set_down(netif);
 			  osDelay(3000);
 
 
@@ -217,8 +217,8 @@ static void ethernet_link_status_updated(struct netif *netif)
 			  IP4_ADDR(&gw, 192, 168, 1, 1);
 
 			  // set fallback value
-			  netif_set_addr(&gnetif, &ipaddr, &netmask, &gw);
-			  netif_set_up(netif);
+			  netifapi_netif_set_addr(&gnetif, &ipaddr, &netmask, &gw);
+//			  netifapi_netif_set_up(netif);
 
 			  // did it work?
 			  ethernet_ip_check(netif);
@@ -235,6 +235,10 @@ static void ethernet_link_status_updated(struct netif *netif)
 	  size_t msg_len = sprintf((char *)msg, "LINK down @ %lu\r\n", HAL_GetTick()/1000);
 	  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 	  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
+
+	  // release IP
+//	  netifapi_dhcp_release(netif);
+//	  netifapi_dhcp_stop(netif);
 
 /* USER CODE END 6 */
   } 
