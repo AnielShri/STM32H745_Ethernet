@@ -107,6 +107,10 @@ void MX_LWIP_Init(void)
   netmask.addr = 0;
   gw.addr = 0;
 
+//  IP4_ADDR(&ipaddr, 192, 168, 20, 201);
+//  IP4_ADDR(&netmask, 255, 255, 255, 0);
+//  IP4_ADDR(&gw, 192, 168, 20, 1);
+
   /* add the network interface (IPv4/IPv6) with RTOS */
   netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 
@@ -186,11 +190,11 @@ static void ethernet_link_status_updated(struct netif *netif)
 		  msg_len = sprintf((char *)msg, "Initial DHCP failed, trying again\r\n");
 		  HAL_UART_Transmit(&huart3, msg, msg_len, HAL_MAX_DELAY);
 
-		  dhcp_release(netif);
-		  osDelay(1000);
-		  dhcp_stop(netif);
-		  osDelay(1000);
-		  dhcp_start(netif);
+//		  dhcp_release(netif);
+//		  osDelay(1000);
+//		  dhcp_stop(netif);
+//		  osDelay(1000);
+//		  dhcp_start(netif);
 
 		  // did we get an IP?
 		  if(ethernet_ip_check(netif) == 0)
@@ -204,19 +208,18 @@ static void ethernet_link_status_updated(struct netif *netif)
 			  osDelay(1000);
 			  dhcp_stop(netif);
 			  osDelay(1000);
-			  netif_set_down(netif);
+//			  netif_set_down(netif);
 			  osDelay(1000);
 
 			  // config IP address
-			  IP4_ADDR(&ipaddr, 192, 168, 20, 205);
+			  IP4_ADDR(&ipaddr, 192, 168, 20, 201);
 			  IP4_ADDR(&netmask, 255, 255, 255, 0);
 			  IP4_ADDR(&gw, 192, 168, 20, 1);
 
 			  // set fallback value
-			  netif_set_addr(netif, &ipaddr, &netmask, &gw);
+			  netif_set_addr(&gnetif, &ipaddr, &netmask, &gw);
+//			  ethernet_link_status_updated(netif);   // call update change on init
 
-			  // Bring the interface up again
-			  netif_set_up(netif);
 
 			  // did it work?
 			  ethernet_ip_check(netif);
