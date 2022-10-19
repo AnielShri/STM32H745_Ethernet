@@ -4,7 +4,7 @@ Trying to get Ethernet, LWIP and FreeRTOS working on the STM32H745. Testing on t
 
 ## Instructions on how to get started:
 * [LWIP without RTOS](Documentation/lwip_nortos.md)
-* [LWIP with RTOS](Dcumentation/lwip_rtos.md)
+* [LWIP with RTOS](Documentation/lwip_rtos.md)
 
 ## Bugs and improvements
 * [SysTick not increasing ticks](Documentation/no_systick.md)
